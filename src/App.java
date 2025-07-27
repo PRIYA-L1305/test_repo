@@ -9,36 +9,51 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
+
 
 public class App {
+
     public static void main(String[] args) throws Exception {
         //Automate Search with Selenium
+        System.out.println("Starting web scraping...");
         WebDriverManager.chromedriver().setup();
         WebDriver driver = new ChromeDriver();
         driver.get("https://www.amazon.in");
         WebElement searchBox = driver.findElement(By.id("twotabsearchtextbox"));
-        searchBox.sendKeys("handbags");
+        searchBox.sendKeys("Air Conditioner");
         searchBox.submit();
         Thread.sleep(2000); // Wait for results to load
         
         //Scrape Data
         List<WebElement> products = driver.findElements(By.cssSelector("div.s-main-slot div[data-component-type='s-search-result']"));
-        for(WebElement product : products) {
-            String title = product.findElement(By.cssSelector("h2 a")).getText();
-            String price = product.findElement(By.cssSelector(".a-price-whole")).getText();
-            String imageUrl = product.findElement(By.cssSelector("img")).getAttribute("src");
-            // Store this in DB or list
-        }
-        
         //Store in Temporary DB
         Connection conn = DriverManager.getConnection("jdbc:sqlite:products.db");
         Statement stmt = conn.createStatement();
         stmt.execute("CREATE TABLE IF NOT EXISTS products (name TEXT, price REAL, imageUrl TEXT)");
 
         PreparedStatement pstmt = conn.prepareStatement("INSERT INTO products VALUES (?, ?, ?)");
-        pstmt.setString(1, title);
-        pstmt.setDouble(2, Double.parseDouble(price.replace(",", "")) );
-        pstmt.setString(3, imageUrl);
+
+        // Loop and scrape + insert
+        System.out.println("Scraping products...");
+        for (WebElement product : products) {
+            try {
+                String title = product.findElement(By.cssSelector("h2 a")).getText();
+                String priceStr = product.findElement(By.cssSelector(".a-price-whole")).getText();
+                String imageUrl = product.findElement(By.cssSelector("img")).getAttribute("src");
+
+                double price = Double.parseDouble(priceStr.replace(",", ""));
+
+                pstmt.setString(1, title);
+                pstmt.setDouble(2, price);
+                pstmt.setString(3, imageUrl);
+                pstmt.executeUpdate();
+            } catch (Exception e) {
+                // Skip any malformed product
+                System.out.println("Skipping a product due to missing data.");
+            }
+        }
+
         pstmt.executeUpdate();
         pstmt.close();
         conn.close();
@@ -47,6 +62,7 @@ public class App {
         ResultSet rs = stmt.executeQuery("SELECT * FROM products ORDER BY price ASC");
         
         //Sort and Display
+        System.out.println("Products sorted by price:");
         while(rs.next()) {
             System.out.println(rs.getString("name") + " - ₹" + rs.getDouble("price"));
             System.out.println("Image: " + rs.getString("imageUrl"));
