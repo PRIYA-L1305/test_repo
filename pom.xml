@@ -7,6 +7,7 @@
   <groupId>com.example</groupId>
   <artifactId>ai-scraper</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
   <dependencies>
     <!-- Selenium -->

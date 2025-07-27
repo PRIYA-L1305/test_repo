@@ -1,3 +1,5 @@
+
+
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.DriverManager;
@@ -13,7 +15,6 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 
 
 public class App {
-
     public static void main(String[] args) throws Exception {
         //Automate Search with Selenium
         System.out.println("Starting web scraping...");
@@ -21,7 +22,7 @@ public class App {
         WebDriver driver = new ChromeDriver();
         driver.get("https://www.amazon.in");
         WebElement searchBox = driver.findElement(By.id("twotabsearchtextbox"));
-        searchBox.sendKeys("Air Conditioner");
+        searchBox.sendKeys("laptop");
         searchBox.submit();
         Thread.sleep(2000); // Wait for results to load
         
@@ -50,17 +51,16 @@ public class App {
                 pstmt.executeUpdate();
             } catch (Exception e) {
                 // Skip any malformed product
-                System.out.println("Skipping a product due to missing data.");
+                System.out.println("Skipping a product due to missing data: " + e.getMessage());
             }
         }
 
         pstmt.executeUpdate();
         pstmt.close();
         conn.close();
-        driver.quit();
         System.out.println("Data saved to database successfully.");
         ResultSet rs = stmt.executeQuery("SELECT * FROM products ORDER BY price ASC");
-        
+        driver.quit();
         //Sort and Display
         System.out.println("Products sorted by price:");
         while(rs.next()) {
