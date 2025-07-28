@@ -1,10 +1,10 @@
 
 
-import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+// import java.sql.Connection;
+// import java.sql.Statement;
+// import java.sql.DriverManager;
+// import java.sql.PreparedStatement;
+// import java.sql.ResultSet;
 import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -20,14 +20,20 @@ public class App {
         System.out.println("Starting web scraping...");
         WebDriverManager.chromedriver().setup();
         WebDriver driver = new ChromeDriver();
-        driver.get("https://www.amazon.in");
-        WebElement searchBox = driver.findElement(By.id("twotabsearchtextbox"));
-        searchBox.sendKeys("laptop");
-        searchBox.submit();
+        driver.manage().window().maximize();
+        driver.get("https://www.amazon.in/s?k=shoes&i=shoes&rh=n%3A1571283031%2Cp_123%3A198664%257C232840%257C256097%257C627141&dc&crid=1ID1OYOAUH73A&qid=1753711251&rnid=91049095031&sprefix=%2Caps%2C351&ref=sr_nr_p_123_7&ds=v1%3AykfNgrL3SXrIjzopGlqFlXU74qctpzMHy4DFPsawzQE");
+        List<WebElement> products = driver.findElements(By.xpath("//div[@class='a-row a-size-base a-color-secondary']"));
+        System.out.println("Total products found: " + products.size());
+        System.out.println("----------------------------------------");
+
+        List<WebElement> productprices = driver.findElements(By.xpath("//div[@class=\"a-section a-spacing-small aok-align-center\"]"));
+
+        for(int i=0;i<products.size();i++) {
+            System.out.println(products.get(i).getText() + " - " + productprices.get(i).getText());
+        }
         Thread.sleep(2000); // Wait for results to load
-        
         //Scrape Data
-        List<WebElement> products = driver.findElements(By.cssSelector("div.s-main-slot div[data-component-type='s-search-result']"));
+        /*List<WebElement> products = driver.findElements(By.cssSelector("div.s-main-slot div[data-component-type='s-search-result']"));
         //Store in Temporary DB
         Connection conn = DriverManager.getConnection("jdbc:sqlite:products.db");
         Statement stmt = conn.createStatement();
@@ -66,6 +72,6 @@ public class App {
         while(rs.next()) {
             System.out.println(rs.getString("name") + " - ₹" + rs.getDouble("price"));
             System.out.println("Image: " + rs.getString("imageUrl"));
-        }
+        }*/
     }
 }
