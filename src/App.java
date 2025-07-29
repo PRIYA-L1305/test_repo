@@ -15,21 +15,22 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 
 
 public class App {
+
     public static void main(String[] args) throws Exception {
         //Automate Search with Selenium
         System.out.println("Starting web scraping...");
         WebDriverManager.chromedriver().setup();
         WebDriver driver = new ChromeDriver();
         driver.manage().window().maximize();
-        driver.get("https://www.amazon.in/s?k=shoes&i=shoes&rh=n%3A1571283031%2Cp_123%3A198664%257C232840%257C256097%257C627141&dc&crid=1ID1OYOAUH73A&qid=1753711251&rnid=91049095031&sprefix=%2Caps%2C351&ref=sr_nr_p_123_7&ds=v1%3AykfNgrL3SXrIjzopGlqFlXU74qctpzMHy4DFPsawzQE");
-        List<WebElement> products = driver.findElements(By.xpath("//div[@class='a-row a-size-base a-color-secondary']"));
+        driver.get("https://www.flipkart.com/search?q=shoes&otracker=search&otracker1=search&marketplace=FLIPKART&as-show=on&as=off&p%5B%5D=facets.brand%255B%255D%3DPUMA&p%5B%5D=facets.brand%255B%255D%3DADIDAS&p%5B%5D=facets.brand%255B%255D%3DBata");
+        List<WebElement> products = driver.findElements(By.xpath("//div[@class=\"syl9yP\"]"));
         System.out.println("Total products found: " + products.size());
         System.out.println("----------------------------------------");
 
-        List<WebElement> productprices = driver.findElements(By.xpath("//div[@class=\"a-section a-spacing-small aok-align-center\"]"));
+        List<WebElement> productprices = driver.findElements(By.xpath("//div[@class=\"Nx9bqj\"]"));
 
         for(int i=0;i<products.size();i++) {
-            System.out.println(products.get(i).getText() + " - " + productprices.get(i).getText());
+            System.out.println(products.get(i).getText() + " - " +"₹"+productprices.get(i).getText().replaceAll("[^\\d,]", " ") );
         }
         Thread.sleep(2000); // Wait for results to load
         //Scrape Data
